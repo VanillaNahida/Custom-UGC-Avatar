@@ -124,11 +124,11 @@ jobs:
         $nuitkaCommand = "python -m nuitka --onefile --windows-console-mode=disable --windows-icon-from-ico=icon.ico --enable-plugin=pyqt5 " +
                          "--remove-output --assume-yes-for-downloads --output-dir=dist " +
                          "--copyright=VanillaNahida --company-name=VanillaNahida --lto=yes " +
-                         "--onefile-tempdir-spec={TEMP}\avatar_$version " +
+                         "--onefile-tempdir-spec={TEMP}/avatar_$version " +
                          "--include-data-files=LICENSE=LICENSE --include-data-files=README.md=README.md " +
                          "--file-version=$nuitka_version --product-version=$nuitka_version " +
                          "--product-name=Custom-UGC-Avatar --file-description=Custom UGC Avatar " +
-                         ".\avatar_gui.py"
+                         "./avatar_gui.py"
         
         # 显示完整命令
         Write-Host "Nuitka command:"
