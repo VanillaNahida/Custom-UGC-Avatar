@@ -19,10 +19,10 @@ jobs:
       with:
         fetch-depth: 0  # 获取所有历史记录以便获取标签
         
-    - name: Setup Python 3.9
+    - name: Setup Python 3.12
       uses: actions/setup-python@v5
       with:
-        python-version: '3.9'
+        python-version: '3.12'
         cache: 'pip'  # 启用 pip 缓存
         
     - name: Install build dependencies
