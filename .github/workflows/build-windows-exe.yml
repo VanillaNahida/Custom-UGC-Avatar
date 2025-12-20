@@ -147,7 +147,7 @@ jobs:
         # 构建Nuitka命令
         $nuitkaArgs = @(
             "--onefile"
-            "--windows-console-mode=disable"
+            "--windows-console-mode=enable"
             if ($icon_option) { $icon_option }
             "--enable-plugin=pyqt5"
             "--remove-output"
