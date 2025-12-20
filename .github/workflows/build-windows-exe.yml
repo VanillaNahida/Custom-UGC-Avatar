@@ -1,4 +1,4 @@
-name: Build Windows EXE for Custom Miliastra Avatar
+name: Build Windows EXE for Custom-UGC-Avatar
 
 on:
   release:
@@ -138,8 +138,8 @@ jobs:
             "--include-data-files=README.md=README.md",
             "--file-version=$nuitka_version",
             "--product-version=$nuitka_version",
-            "--product-name=CustomMiliastraAvatar",
-            "--file-description=Custom Miliastra Wonderland Avatar",
+            "--product-name=Custom-UGC-Avatar",
+            "--file-description=Custom UGC Avatar",
             ".\avatar_gui.py"
         )
         
@@ -209,13 +209,13 @@ jobs:
         $version = "${{ steps.extract_version.outputs.version }}"
         $generated_exe_path = "${{ steps.verify_executable.outputs.generated_exe_path }}"
         $generated_exe_name = "${{ steps.verify_executable.outputs.generated_exe_name }}"
-        $destination = "dist\CustomMiliastraAvatar_$version.exe"
+        $destination = "dist\Custom-UGC-Avatar_$version.exe"
         
         Write-Host "Renaming from: $generated_exe_path"
         Write-Host "Renaming to: $destination"
         
         # 使用Rename-Item进行重命名
-        Rename-Item -Path $generated_exe_path -NewName "CustomMiliastraAvatar_$version.exe" -Force
+        Rename-Item -Path $generated_exe_path -NewName "Custom-UGC-Avatar_$version.exe" -Force
         
         # 验证新文件
         if (Test-Path $destination) {
@@ -231,10 +231,10 @@ jobs:
         $version = "${{ steps.extract_version.outputs.version }}"
         
         # 创建包含文档和可执行文件的 ZIP 包
-        $zipPath = "dist\CustomMiliastraAvatar_$version.zip"
+        $zipPath = "dist\Custom-UGC-Avatar_$version.zip"
         
         $filesToInclude = @(
-            "dist\CustomMiliastraAvatar_$version.exe",
+            "dist\Custom-UGC-Avatar_$version.exe",
             "LICENSE",
             "README.md",
             "CHANGELOG.md"
@@ -246,10 +246,10 @@ jobs:
     - name: Upload standalone EXE as artifact
       uses: actions/upload-artifact@v4
       with:
-        name: CustomMiliastraAvatar-Windows-${{ steps.extract_version.outputs.version }}
+        name: Custom-UGC-Avatar-Windows-${{ steps.extract_version.outputs.version }}
         path: |
-          dist/CustomMiliastraAvatar_${{ steps.extract_version.outputs.version }}.exe
-          dist/CustomMiliastraAvatar_${{ steps.extract_version.outputs.version }}.zip
+          dist/Custom-UGC-Avatar_${{ steps.extract_version.outputs.version }}.exe
+          dist/Custom-UGC-Avatar_${{ steps.extract_version.outputs.version }}.zip
         retention-days: 7
         
     - name: Upload to GitHub Release
@@ -261,8 +261,8 @@ jobs:
         draft: false
         prerelease: false
         files: |
-          dist/CustomMiliastraAvatar_${{ steps.extract_version.outputs.version }}.exe
-          dist/CustomMiliastraAvatar_${{ steps.extract_version.outputs.version }}.zip
+          dist/Custom-UGC-Avatar_${{ steps.extract_version.outputs.version }}.exe
+          dist/Custom-UGC-Avatar_${{ steps.extract_version.outputs.version }}.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         

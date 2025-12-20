@@ -1,21 +1,21 @@
-# Custom_Miliastra_Wonderland_Avatar 个性化千星奇域头像 
+# Custom-UGC-Avatarr 个性化千星奇域头像 
 ## 感谢 @星渊清梦 提供的思路和代码
-仓库地址：[https://github.com/VanillaNahida/Custom-UGC-Avata](https://github.com/VanillaNahida/Custom-UGC-Avata)
+仓库地址：[https://github.com/VanillaNahida/Custom-UGC-Avatarr](https://github.com/VanillaNahida/Custom-UGC-Avatarr)
 
 注：此文件由ai生成，内容不完全可信
 
 <div align="center">
 
-![UGC Avatar](https://socialify.git.ci/VanillaNahida/Custom-UGC-Avata/image?description=1&font=KoHo&forks=1&issues=1&language=1&name=1&owner=1&pattern=Circuit%20Board&pulls=1&stargazers=1&theme=Auto)
+![UGC Avatar](https://socialify.git.ci/VanillaNahida/Custom-UGC-Avatar/image?description=1&font=KoHo&forks=1&issues=1&language=1&name=1&owner=1&pattern=Circuit%20Board&pulls=1&stargazers=1&theme=Auto)
 
-[![GitHub license](https://img.shields.io/github/license/VanillaNahida/Custom-UGC-Avata?style=flat-square)](https://github.com/VanillaNahida/Custom-UGC-Avata/blob/main/LICENSE)
-[![GitHub stars](https://img.shields.io/github/stars/VanillaNahida/Custom-UGC-Avata?style=flat-square)](https://github.com/VanillaNahida/Custom-UGC-Avata/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/VanillaNahida/Custom-UGC-Avata?style=flat-square)](https://github.com/VanillaNahida/Custom-UGC-Avata/network)
-[![GitHub issues](https://img.shields.io/github/issues/VanillaNahida/Custom-UGC-Avata?style=flat-square)](https://github.com/VanillaNahida/Custom-UGC-Avata/issues)
+[![GitHub license](https://img.shields.io/github/license/VanillaNahida/Custom-UGC-Avatar?style=flat-square)](https://github.com/VanillaNahida/Custom-UGC-Avatar/blob/main/LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/VanillaNahida/Custom-UGC-Avatar?style=flat-square)](https://github.com/VanillaNahida/Custom-UGC-Avatar/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/VanillaNahida/Custom-UGC-Avatar?style=flat-square)](https://github.com/VanillaNahida/Custom-UGC-Avatar/network)
+[![GitHub issues](https://img.shields.io/github/issues/VanillaNahida/Custom-UGC-Avatar?style=flat-square)](https://github.com/VanillaNahida/Custom-UGC-Avatar/issues)
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg?style=flat-square)](https://www.python.org/)
 [![Platform](https://img.shields.io/badge/Platform-Windows-brightgreen.svg?style=flat-square)](https://www.microsoft.com/windows)
 
-[📦 下载使用](#-快速开始) | [📖 使用文档](#-使用说明) | [💬 问题反馈](https://github.com/VanillaNahida/Custom-UGC-Avata/issues)
+[📦 下载使用](#-快速开始) | [📖 使用文档](#-使用说明) | [💬 问题反馈](https://github.com/VanillaNahida/Custom-UGC-Avatar/issues)
 
 </div>
 
@@ -269,10 +269,10 @@ pip install mitmproxy-windows mitmproxy-rs
 
 欢迎参与项目贡献！您可以：
 
-- 🐛 提交 [Bug报告](https://github.com/VanillaNahida/Custom-UGC-Avata/issues/new?template=bug_report.md)
-- 💡 提出 [新功能建议](https://github.com/VanillaNahida/Custom-UGC-Avata/issues/new?template=feature_request.md)
-- 📝 改进 [文档](https://github.com/VanillaNahida/Custom-UGC-Avata/wiki)
-- 🔧 提交 [Pull Request](https://github.com/VanillaNahida/Custom-UGC-Avata/pulls)
+- 🐛 提交 [Bug报告](https://github.com/VanillaNahida/Custom-UGC-Avatar/issues/new?template=bug_report.md)
+- 💡 提出 [新功能建议](https://github.com/VanillaNahida/Custom-UGC-Avatar/issues/new?template=feature_request.md)
+- 📝 改进 [文档](https://github.com/VanillaNahida/Custom-UGC-Avatar/wiki)
+- 🔧 提交 [Pull Request](https://github.com/VanillaNahida/Custom-UGC-Avatar/pulls)
 
 </td>
 </tr>
@@ -284,7 +284,7 @@ pip install mitmproxy-windows mitmproxy-rs
 <tr>
 <td>
 
-- 📧 问题反馈：[GitHub Issues](https://github.com/VanillaNahida/Custom-UGC-Avata/issues)
+- 📧 问题反馈：[GitHub Issues](https://github.com/VanillaNahida/Custom-UGC-Avatar/issues)
 
 </td>
 </tr>
@@ -308,7 +308,7 @@ pip install mitmproxy-windows mitmproxy-rs
 
 **Star History**
 
-[![Star History Chart](https://api.star-history.com/svg?repos=VanillaNahida/Custom-UGC-Avata&type=Date)](https://star-history.com/#VanillaNahida/Custom-UGC-Avata&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=VanillaNahida/Custom-UGC-Avatar&type=Date)](https://star-history.com/#VanillaNahida/Custom-UGC-Avatar&Date)
 
 Made with ❤️ for Genshin Impact Players
 
