@@ -120,25 +120,62 @@ jobs:
         Write-Host "Project version: $version"
         Write-Host "File version: $nuitka_version"
         
-        # 直接使用简化的Nuitka命令
-        $nuitkaCommand = "python -m nuitka --onefile --windows-console-mode=disable --windows-icon-from-ico=icon.ico --enable-plugin=pyqt5 " +
-                         "--remove-output --assume-yes-for-downloads --output-dir=dist " +
-                         "--copyright=VanillaNahida --company-name=VanillaNahida --lto=yes " +
-                         "--onefile-tempdir-spec={TEMP}/avatar_$version " +
-                         "--include-data-files=LICENSE=LICENSE --include-data-files=README.md=README.md " +
-                         "--file-version=$nuitka_version --product-version=$nuitka_version " +
-                         "--product-name=Custom-UGC-Avatar --file-description=Custom UGC Avatar " +
-                         "./avatar_gui.py"
+        # 先检查icon.ico文件是否存在
+        if (-Not (Test-Path "icon.ico")) {
+            Write-Host "Warning: icon.ico file not found, skipping icon option"
+            $icon_option = ""
+        } else {
+            $icon_option = "--windows-icon-from-ico=icon.ico"
+        }
+        
+        # 检查README.md文件是否存在
+        if (-Not (Test-Path "README.md")) {
+            Write-Host "Warning: README.md file not found, skipping include option"
+            $readme_option = ""
+        } else {
+            $readme_option = "--include-data-file=README.md=README.md"
+        }
+        
+        # 检查LICENSE文件是否存在
+        if (-Not (Test-Path "LICENSE")) {
+            Write-Host "Warning: LICENSE file not found, skipping include option"
+            $license_option = ""
+        } else {
+            $license_option = "--include-data-file=LICENSE=LICENSE"
+        }
+        
+        # 构建Nuitka命令
+        $nuitkaArgs = @(
+            "--onefile"
+            "--windows-console-mode=disable"
+            if ($icon_option) { $icon_option }
+            "--enable-plugin=pyqt5"
+            "--remove-output"
+            "--assume-yes-for-downloads"
+            "--output-dir=dist"
+            "--copyright=VanillaNahida"
+            "--company-name=VanillaNahida"
+            "--lto=yes"
+            "--onefile-tempdir-spec={TEMP}/avatar_$version"
+            if ($license_option) { $license_option }
+            if ($readme_option) { $readme_option }
+            "--file-version=$nuitka_version"
+            "--product-version=$nuitka_version"
+            "--product-name=Custom-UGC-Avatar"
+            "--file-description=Custom UGC Avatar"
+            "./avatar_gui.py"
+        )
         
         # 显示完整命令
         Write-Host "Nuitka command:"
-        Write-Host $nuitkaCommand
+        $command = "python -m nuitka " + ($nuitkaArgs -join ' ')
+        Write-Host $command
         
         # 执行构建
         Write-Host "Starting Nuitka build..."
         
         # 执行Nuitka命令
-        Invoke-Expression $nuitkaCommand
+        python -m nuitka @nuitkaArgs
         $exitCode = $LASTEXITCODE
         
         # 检查构建是否成功
@@ -184,21 +221,25 @@ jobs:
         Write-Host "  Version: $version"
         
         # 设置环境变量以便后续步骤使用
-        echo "::set-output name=generated_exe_path::$($generated_exe.FullName)"
-        echo "::set-output name=generated_exe_name::$($generated_exe.Name)"
-      id: verify_executable
+        echo "GENERATED_EXE_PATH=$($generated_exe.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
+        echo "GENERATED_EXE_NAME=$($generated_exe.Name)" | Out-File -FilePath $env:GITHUB_ENV -Append
         
     - name: Rename executable
       run: |
         $version = "${{ steps.extract_version.outputs.version }}"
-        $generated_exe_path = "${{ steps.verify_executable.outputs.generated_exe_path }}"
-        $generated_exe_name = "${{ steps.verify_executable.outputs.generated_exe_name }}"
+        $generated_exe_path = "$env:GENERATED_EXE_PATH"
+        $generated_exe_name = "$env:GENERATED_EXE_NAME"
         $destination = "dist\Custom-UGC-Avatar_$version.exe"
         
         Write-Host "Renaming from: $generated_exe_path"
         Write-Host "Renaming to: $destination"
         
-        # 使用Rename-Item进行重命名
+        # 如果目标文件已存在，先删除
+        if (Test-Path $destination) {
+            Remove-Item $destination -Force
+        }
+        
+        # 重命名文件
         Rename-Item -Path $generated_exe_path -NewName "Custom-UGC-Avatar_$version.exe" -Force
         
         # 验证新文件
@@ -217,15 +258,32 @@ jobs:
         # 创建包含文档和可执行文件的 ZIP 包
         $zipPath = "dist\Custom-UGC-Avatar_$version.zip"
         
-        $filesToInclude = @(
-            "dist\Custom-UGC-Avatar_$version.exe",
-            "LICENSE",
-            "README.md",
-            "CHANGELOG.md"
-        ) | Where-Object { Test-Path $_ }
+        $filesToInclude = @()
         
-        Compress-Archive -Path $filesToInclude -DestinationPath $zipPath -Force
-        Write-Host "Created package: $zipPath"
+        # 添加可执行文件
+        if (Test-Path "dist\Custom-UGC-Avatar_$version.exe") {
+            $filesToInclude += "dist\Custom-UGC-Avatar_$version.exe"
+        }
+        
+        # 添加文档文件
+        if (Test-Path "LICENSE") {
+            $filesToInclude += "LICENSE"
+        }
+        
+        if (Test-Path "README.md") {
+            $filesToInclude += "README.md"
+        }
+        
+        if (Test-Path "CHANGELOG.md") {
+            $filesToInclude += "CHANGELOG.md"
+        }
+        
+        if ($filesToInclude.Count -eq 0) {
+            Write-Host "No files to include in ZIP package"
+        } else {
+            Compress-Archive -Path $filesToInclude -DestinationPath $zipPath -Force
+            Write-Host "Created package: $zipPath"
+        }
         
     - name: Upload standalone EXE as artifact
       uses: actions/upload-artifact@v4
@@ -258,4 +316,11 @@ jobs:
         Remove-Item -Path "__pycache__" -Recurse -Force -ErrorAction SilentlyContinue
         Remove-Item -Path "*.build" -Recurse -Force -ErrorAction SilentlyContinue
         Remove-Item -Path "*.dist" -Recurse -Force -ErrorAction SilentlyContinue
+        
+        # 清理可能生成的中间文件
+        Remove-Item -Path "*.pyc" -Recurse -Force -ErrorAction SilentlyContinue
+        Remove-Item -Path "*.pyo" -Recurse -Force -ErrorAction SilentlyContinue
+        Remove-Item -Path "*.pyd" -Recurse -Force -ErrorAction SilentlyContinue
+        Remove-Item -Path "__pycache__" -Recurse -Force -ErrorAction SilentlyContinue
+        
         Write-Host "Cleanup completed."
