@@ -2,6 +2,7 @@ import os
 import sys
 import threading
 import subprocess
+import logging
 from pathlib import Path
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
@@ -17,8 +18,13 @@ from PIL import Image
 from avatar_proxy import (
     is_admin, run_as_admin, check_dependencies,
     install_cert_auto, verify_cert_installation,
-    get_running_processes, get_desktop_path, GLOBAL_FONT
+    get_running_processes, get_desktop_path, GLOBAL_FONT,
+    ProxyEnvironment, get_process_pid,
+    AvatarReplacer, ConnectionLogger, TlsLogger, UdpLogFilter
 )
+from mitmproxy import options
+from mitmproxy.tools.dump import DumpMaster
+import asyncio
 
 class ProxyThread(QThread):
     log_signal = pyqtSignal(str)
@@ -30,46 +36,111 @@ class ProxyThread(QThread):
         self.source_image = source_image
         self.target_process = target_process
         self.running = False
+        self.master = None
+        self.proxy_env = None
     
     def run(self):
         try:
             self.running = True
             self.status_signal.emit("启动中...")
             
-            # 运行代理程序
-            cmd = [
-                sys.executable, 
-                "avatar_proxy.py",
-                "--source", self.source_image,
-                "--target", self.target_process
-            ]
+            # 初始化代理环境
+            self.proxy_env = ProxyEnvironment.get_instance()
+            self.proxy_env.initialize()
             
-            process = subprocess.Popen(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT
-            )
+            process_name = self.target_process.replace('.exe', '')
             
-            while self.running and process.poll() is None:
-                line = process.stdout.readline()
-                if line:
-                    try:
-                        # 尝试使用 UTF-8 解码
-                        decoded_line = line.decode('utf-8')
-                    except UnicodeDecodeError:
-                        # 如果 UTF-8 解码失败，尝试使用 GBK 解码（Windows 默认编码）
-                        decoded_line = line.decode('gbk', errors='ignore')
-                    self.log_signal.emit(decoded_line.strip())
+            pid = get_process_pid(self.target_process)
+            if pid:
+                self.log_signal.emit(f'[进程] 找到 {self.target_process} (PID: {pid})')
+            else:
+                self.log_signal.emit(f'[进程] 未找到运行中的 {self.target_process}，将监听进程名')
             
-            if process.poll() is not None:
-                self.status_signal.emit(f"已停止 (退出码: {process.returncode})")
+            self.log_signal.emit('\n' + '='*60)
+            self.log_signal.emit('  原神头像替换代理程序')
+            self.log_signal.emit('='*60)
+            self.log_signal.emit(f'  源图片: {self.source_image}')
+            self.log_signal.emit(f'  目标进程: {self.target_process}')
+            if pid:
+                self.log_signal.emit(f'  进程PID: {pid}')
+            self.log_signal.emit('='*60)
+            self.log_signal.emit('')
+            self.log_signal.emit('[模式] 使用 mitmproxy 本地捕获模式')
+            self.log_signal.emit('[提示] 正在监听请求，请进行头像上传操作')
+            self.log_signal.emit('[提示] 点击停止按钮退出程序')
+            self.log_signal.emit('')
+            
+            mode_spec = f'local:{process_name}'
+            self.log_signal.emit(f'[配置] 代理模式: {mode_spec}')
+            
+            # 设置日志过滤
+            for handler in logging.root.handlers[:]:
+                handler.addFilter(UdpLogFilter())
+            
+            for name in ['mitmproxy', 'mitmproxy.proxy', 'mitmproxy.proxy.mode_servers', 'mitmproxy.proxy.server']:
+                logger = logging.getLogger(name)
+                logger.addFilter(UdpLogFilter())
+                for handler in logger.handlers:
+                    handler.addFilter(UdpLogFilter())
+            
+            # 创建异步代理函数
+            async def proxy_coroutine():
+                try:
+                    # 创建mitmproxy选项
+                    opts = options.Options(
+                        mode=[mode_spec],
+                        ssl_insecure=True,
+                        showhost=True,
+                    )
+                    
+                    # 启动mitmproxy
+                    self.master = DumpMaster(opts, with_termlog=False)
+                    self.proxy_env.set_master(self.master)
+                    
+                    avatar_addon = AvatarReplacer(self.source_image)
+                    connection_logger = ConnectionLogger()
+                    tls_logger = TlsLogger()
+                    
+                    self.master.addons.add(avatar_addon)
+                    self.master.addons.add(connection_logger)
+                    self.master.addons.add(tls_logger)
+                    
+                    self.log_signal.emit('[代理] 代理服务已启动')
+                    
+                    # 运行mitmproxy
+                    await self.master.run()
+                except Exception as e:
+                    self.log_signal.emit(f'[错误] 代理运行异常: {e}')
+                    raise
+                finally:
+                    if hasattr(self, 'proxy_env') and self.proxy_env:
+                        self.proxy_env.cleanup()
+            
+            # 使用asyncio.run运行代理
+            asyncio.run(proxy_coroutine())
             
         except Exception as e:
             self.error_signal.emit(str(e))
             self.status_signal.emit("启动失败")
+        finally:
+            # 恢复原始print函数
+            import builtins
+            if hasattr(builtins, 'print') and builtins.print.__name__ != 'print':
+                del builtins.print
+            
+            if self.proxy_env:
+                try:
+                    self.proxy_env.cleanup()
+                except:
+                    pass
     
     def stop(self):
         self.running = False
+        if self.master:
+            try:
+                self.master.shutdown()
+            except:
+                pass
         self.terminate()
 
 class AvatarGUI(QMainWindow):
@@ -470,10 +541,21 @@ def main():
     
     # 检查是否以管理员权限运行
     if not is_admin():
-        QMessageBox.warning(None, "警告", "建议以管理员权限运行程序，否则可能无法正常工作！\n点击OK键以管理员身份重启。")
+        QMessageBox.warning(None, "警告", "建议以管理员权限运行程序，否则可能无法正常工作！点击OK键以管理员身份重启。")
         # 尝试重新以管理员身份运行
         if run_as_admin():
             sys.exit(0)
+    
+    # 初始化代理环境
+    from avatar_proxy import ProxyEnvironment
+    proxy_env = ProxyEnvironment.get_instance()
+    proxy_env.initialize()
+    
+    # 注册应用关闭事件
+    def cleanup():
+        proxy_env.cleanup()
+    
+    app.aboutToQuit.connect(cleanup)
     
     gui = AvatarGUI()
     gui.show()

@@ -37,7 +37,7 @@ class ProxyEnvironment:
         self._cleanup_existing_drivers()
         self._register_cleanup_handlers()
         ProxyEnvironment._initialized = True
-        print('[环境] 代理环境初始化完成')
+        sys.stdout.write('[环境] 代理环境初始化完成\n')
     
     def _run_command(self, cmd, use_shell=False):
         try:
@@ -106,7 +106,7 @@ class ProxyEnvironment:
             pass
     
     def _cleanup_existing_drivers(self):
-        print('[环境] 正在清理残留的网络驱动...')
+        sys.stdout.write('[环境] 正在清理残留的网络驱动...\n')
         self._kill_redirector_processes()
         self._run_command('sc stop WinDivert', use_shell=True)
         self._run_command('sc stop WinDivert14', use_shell=True)
@@ -119,7 +119,7 @@ class ProxyEnvironment:
             time.sleep(1.0)
         except:
             pass
-        print('[环境] 网络驱动清理完成')
+        sys.stdout.write('[环境] 网络驱动清理完成\n')
     
     def _console_ctrl_handler(self, ctrl_type):
         CTRL_C_EVENT = 0
@@ -130,7 +130,7 @@ class ProxyEnvironment:
         
         if ctrl_type in (CTRL_C_EVENT, CTRL_BREAK_EVENT, CTRL_CLOSE_EVENT, 
                          CTRL_LOGOFF_EVENT, CTRL_SHUTDOWN_EVENT):
-            print(f'\n[系统] 收到控制台事件 ({ctrl_type})，正在清理...')
+            sys.stdout.write(f'\n[系统] 收到控制台事件 ({ctrl_type})，正在清理...\n')
             self.cleanup()
             return True
         return False
@@ -145,9 +145,9 @@ class ProxyEnvironment:
                     self._handler_func = HANDLER_ROUTINE(self._console_ctrl_handler)
                     ctypes.windll.kernel32.SetConsoleCtrlHandler(self._handler_func, True)
                     ProxyEnvironment._console_handler_set = True
-                    print('[环境] 已注册 Windows 控制台事件处理器')
+                    sys.stdout.write('[环境] 已注册 Windows 控制台事件处理器\n')
             except Exception as e:
-                print(f'[环境] 无法注册控制台事件处理器: {e}')
+                sys.stdout.write(f'[环境] 无法注册控制台事件处理器: {e}\n')
             
             try:
                 signal.signal(signal.SIGINT, self._signal_handler)
@@ -160,7 +160,7 @@ class ProxyEnvironment:
             signal.signal(signal.SIGTERM, self._signal_handler)
     
     def _signal_handler(self, signum, frame):
-        print(f'\n[系统] 收到退出信号 ({signum})，正在清理...')
+        sys.stdout.write(f'\n[系统] 收到退出信号 ({signum})，正在清理...\n')
         self.cleanup()
         os._exit(0)
     
@@ -171,7 +171,7 @@ class ProxyEnvironment:
         if self._cleanup_done:
             return
         self._cleanup_done = True
-        print('[环境] 正在恢复系统环境...')
+        sys.stdout.write('[环境] 正在恢复系统环境...\n')
         
         if ProxyEnvironment._master:
             try:
@@ -197,7 +197,7 @@ class ProxyEnvironment:
             time.sleep(0.5)
         except:
             pass
-        print('[环境] 系统环境已恢复')
+        sys.stdout.write('[环境] 系统环境已恢复\n')
 
 
 class FilteredStdout:
@@ -299,11 +299,11 @@ def is_cert_installed():
 def verify_cert_installation():
     cert_path = get_mitmproxy_cert_path()
     if not cert_path.exists():
-        print('[证书验证] 证书文件不存在')
+        sys.stdout.write('[证书验证] 证书文件不存在\n')
         return False
     
     if not is_cert_installed():
-        print('[证书验证] 证书未安装到系统信任存储')
+        sys.stdout.write('[证书验证] 证书未安装到系统信任存储\n')
         return False
     
     try:
@@ -315,20 +315,20 @@ def verify_cert_installation():
             errors='ignore'
         )
         if result.returncode == 0:
-            print('[证书验证] 证书验证通过')
+            sys.stdout.write('[证书验证] 证书验证通过\n')
             return True
         else:
-            print(f'[证书验证] 证书验证失败: {result.stderr}')
+            sys.stdout.write(f'[证书验证] 证书验证失败: {result.stderr}\n')
             return False
     except Exception as e:
-        print(f'[证书验证] 验证异常: {e}')
+        sys.stdout.write(f'[证书验证] 验证异常: {e}\n')
         return False
 
 def generate_mitmproxy_cert():
     cert_path = get_mitmproxy_cert_path()
     if cert_path.exists():
         return True
-    print('[证书] 正在生成 mitmproxy 证书...')
+    sys.stdout.write('[证书] 正在生成 mitmproxy 证书...\n')
     try:
         from mitmproxy.certs import CertStore
         certstore_path = Path(os.path.expanduser('~/.mitmproxy'))
@@ -336,19 +336,19 @@ def generate_mitmproxy_cert():
         CertStore.from_store(str(certstore_path), 'mitmproxy', 2048)
         return cert_path.exists()
     except Exception as e:
-        print(f'[证书] 生成失败: {e}')
+        sys.stdout.write(f'[证书] 生成失败: {e}\n')
         return False
 
 def install_cert_auto():
     cert_path = get_mitmproxy_cert_path()
     if not cert_path.exists():
         if not generate_mitmproxy_cert():
-            print('[证书] 无法生成证书')
+            sys.stdout.write('[证书] 无法生成证书\n')
             return False
     if is_cert_installed():
-        print('[证书] 证书已安装')
+        sys.stdout.write('[证书] 证书已安装\n')
         return True
-    print('[证书] 正在安装证书到受信任的根证书颁发机构...')
+    sys.stdout.write('[证书] 正在安装证书到受信任的根证书颁发机构...\n')
     try:
         result = subprocess.run(
             ['certutil', '-addstore', '-f', 'Root', str(cert_path)],
@@ -358,20 +358,20 @@ def install_cert_auto():
             errors='ignore'
         )
         if result.returncode == 0:
-            print('[证书] 安装成功')
+            sys.stdout.write('[证书] 安装成功\n')
             return True
         else:
-            print(f'[证书] 安装失败: {result.stderr}')
+            sys.stdout.write(f'[证书] 安装失败: {result.stderr}\n')
             return False
     except Exception as e:
-        print(f'[证书] 安装异常: {e}')
+        sys.stdout.write(f'[证书] 安装异常: {e}\n')
         return False
 
 def get_running_processes():
     try:
         import psutil
     except ImportError:
-        print('[错误] 需要安装 psutil: pip install psutil')
+        sys.stdout.write('[错误] 需要安装 psutil: pip install psutil\n')
         return []
     
     processes = {}
@@ -388,13 +388,13 @@ def get_running_processes():
     return sorted_procs
 
 def select_process(default='YuanShen.exe'):
-    print('\n' + '='*60)
-    print('  当前运行的进程列表')
-    print('='*60)
+    sys.stdout.write('\n' + '='*60 + '\n')
+    sys.stdout.write('  当前运行的进程列表\n')
+    sys.stdout.write('='*60 + '\n')
     
     procs = get_running_processes()
     if not procs:
-        print('[警告] 无法获取进程列表，使用默认进程')
+        sys.stdout.write('[警告] 无法获取进程列表，使用默认进程\n')
         return default
     
     page_size = 20
@@ -411,15 +411,15 @@ def select_process(default='YuanShen.exe'):
         start = current_page * page_size
         end = min(start + page_size, len(procs))
         
-        print(f'\n第 {current_page + 1}/{total_pages} 页 (共 {len(procs)} 个进程)\n')
+        sys.stdout.write(f'\n第 {current_page + 1}/{total_pages} 页 (共 {len(procs)} 个进程)\n\n')
         
         for i in range(start, end):
             name, pid = procs[i]
             marker = ' *' if name.lower() == default.lower() else ''
-            print(f'  [{i + 1:3d}] {name}{marker}')
+            sys.stdout.write(f'  [{i + 1:3d}] {name}{marker}\n')
         
-        print()
-        print('  [n] 下一页  [p] 上一页  [回车] 使用默认  [0] 手动输入')
+        sys.stdout.write('\n')
+        sys.stdout.write('  [n] 下一页  [p] 上一页  [回车] 使用默认  [0] 手动输入\n')
         
         choice = input(f'\n请选择进程编号 (默认: {default}): ').strip()
         
@@ -445,7 +445,7 @@ def select_process(default='YuanShen.exe'):
                     return procs[idx][0]
             except:
                 pass
-            print('[错误] 无效选择')
+            sys.stdout.write('[错误] 无效选择\n')
 
 def get_process_pid(process_name):
     try:
@@ -497,7 +497,7 @@ def create_png_with_exact_size(source_path, target_size, image_size):
     try:
         from PIL import Image
     except ImportError:
-        print('[错误] 需要安装 Pillow: pip install Pillow')
+        sys.stdout.write('[错误] 需要安装 Pillow: pip install Pillow\n')
         return None
     
     img = Image.open(source_path)
@@ -538,16 +538,16 @@ def create_png_with_exact_size(source_path, target_size, image_size):
                 if 0 <= diff < best_diff:
                     best_data = data
                     best_diff = diff
-                    print(f'[图片] {mode_name} lv{level}: {len(data)}b (差{diff})')
+                    sys.stdout.write(f'[图片] {mode_name} lv{level}: {len(data)}b (差{diff})\n')
         except Exception as e:
             pass
     
     if best_data is None or best_diff < 0:
-        print(f'[错误] 无法压缩到目标大小')
+        sys.stdout.write(f'[错误] 无法压缩到目标大小\n')
         return None
     
     padding = target_size - len(best_data)
-    print(f'[图片] 最佳: {len(best_data)}b, 填充: {padding}b')
+    sys.stdout.write(f'[图片] 最佳: {len(best_data)}b, 填充: {padding}b\n')
     
     if padding == 0:
         return best_data
@@ -579,7 +579,7 @@ class AvatarReplacer:
     def __init__(self, source_image_path):
         self.source_image = source_image_path
         self.request_count = 0
-        print(f'[配置] 源图片: {self.source_image}')
+        sys.stdout.write(f'[配置] 源图片: {self.source_image}\n')
         if not os.path.exists(self.source_image):
             raise FileNotFoundError(f'头像文件不存在: {self.source_image}')
     
@@ -596,16 +596,16 @@ class AvatarReplacer:
         self.request_count += 1
         
         scheme = 'HTTPS' if url.startswith('https://') else 'HTTP'
-        print(f'\n[{scheme}#{self.request_count}] ═══════════════════════════════════════')
-        print(f'[{scheme}#{self.request_count}] 方法: {request.method}')
-        print(f'[{scheme}#{self.request_count}] URL: {url}')
-        print(f'[{scheme}#{self.request_count}] Host: {request.host}:{request.port}')
-        print(f'[{scheme}#{self.request_count}] 请求头:')
+        sys.stdout.write(f'\n[{scheme}#{self.request_count}] ═══════════════════════════════════════\n')
+        sys.stdout.write(f'[{scheme}#{self.request_count}] 方法: {request.method}\n')
+        sys.stdout.write(f'[{scheme}#{self.request_count}] URL: {url}\n')
+        sys.stdout.write(f'[{scheme}#{self.request_count}] Host: {request.host}:{request.port}\n')
+        sys.stdout.write(f'[{scheme}#{self.request_count}] 请求头:\n')
         for key, value in request.headers.items():
-            print(f'[{scheme}#{self.request_count}]   {key}: {value}')
+            sys.stdout.write(f'[{scheme}#{self.request_count}]   {key}: {value}\n')
         if request.content:
-            print(f'[{scheme}#{self.request_count}] 请求体大小: {len(request.content)} bytes')
-        print(f'[{scheme}#{self.request_count}] ═══════════════════════════════════════')
+            sys.stdout.write(f'[{scheme}#{self.request_count}] 请求体大小: {len(request.content)} bytes\n')
+        sys.stdout.write(f'[{scheme}#{self.request_count}] ═══════════════════════════════════════\n')
         
         if request.method != 'PUT':
             return
@@ -614,36 +614,36 @@ class AvatarReplacer:
         if 'image' not in content_type:
             return
         
-        print(f'\n[拦截] ═══════════════════════════════════════')
-        print(f'[拦截] PUT {url[:80]}...')
+        sys.stdout.write(f'\n[拦截] ═══════════════════════════════════════\n')
+        sys.stdout.write(f'[拦截] PUT {url[:80]}...\n')
         
         content_length = request.headers.get('Content-Length')
         if content_length is None:
-            print('[拦截] 无 Content-Length')
+            sys.stdout.write('[拦截] 无 Content-Length\n')
             return
         
         try:
             target_size = int(content_length)
         except:
-            print('[拦截] Content-Length 解析失败')
+            sys.stdout.write('[拦截] Content-Length 解析失败\n')
             return
         
-        print(f'[拦截] 目标大小: {target_size}b')
+        sys.stdout.write(f'[拦截] 目标大小: {target_size}b\n')
         
         if '_thn' in url:
             image_size = (256, 256)
-            print('[拦截] 类型: 缩略图 256x256')
+            sys.stdout.write('[拦截] 类型: 缩略图 256x256\n')
         else:
             image_size = (512, 512)
-            print('[拦截] 类型: 原图 512x512')
+            sys.stdout.write('[拦截] 类型: 原图 512x512\n')
         
         new_data = create_png_with_exact_size(self.source_image, target_size, image_size)
         
         if new_data and len(new_data) == target_size:
             request.content = new_data
-            print(f'[拦截] ✓ 替换成功! ({len(new_data)}b)')
+            sys.stdout.write(f'[拦截] ✓ 替换成功! ({len(new_data)}b)\n')
         else:
-            print('[拦截] ✗ 生成失败')
+            sys.stdout.write('[拦截] ✗ 生成失败\n')
     
     def response(self, flow):
         if hasattr(flow, 'metadata') and flow.metadata.get('mode', '') == 'dns':
@@ -656,28 +656,28 @@ class AvatarReplacer:
         url = flow.request.pretty_url
         scheme = 'HTTPS' if url.startswith('https://') else 'HTTP'
         
-        print(f'\n[{scheme}响应] ═══════════════════════════════════════')
-        print(f'[{scheme}响应] URL: {url[:80]}...')
-        print(f'[{scheme}响应] 状态码: {flow.response.status_code}')
-        print(f'[{scheme}响应] 响应头:')
+        sys.stdout.write(f'\n[{scheme}响应] ═══════════════════════════════════════\n')
+        sys.stdout.write(f'[{scheme}响应] URL: {url[:80]}...\n')
+        sys.stdout.write(f'[{scheme}响应] 状态码: {flow.response.status_code}\n')
+        sys.stdout.write(f'[{scheme}响应] 响应头:\n')
         for key, value in flow.response.headers.items():
-            print(f'[{scheme}响应]   {key}: {value}')
+            sys.stdout.write(f'[{scheme}响应]   {key}: {value}\n')
         if flow.response.content:
             content_preview = flow.response.content[:200] if len(flow.response.content) > 200 else flow.response.content
-            print(f'[{scheme}响应] 响应体大小: {len(flow.response.content)} bytes')
+            sys.stdout.write(f'[{scheme}响应] 响应体大小: {len(flow.response.content)} bytes\n')
             try:
-                print(f'[{scheme}响应] 响应体预览: {content_preview.decode("utf-8", errors="ignore")}')
+                sys.stdout.write(f'[{scheme}响应] 响应体预览: {content_preview.decode("utf-8", errors="ignore")}\n')
             except:
                 pass
-        print(f'[{scheme}响应] ═══════════════════════════════════════')
+        sys.stdout.write(f'[{scheme}响应] ═══════════════════════════════════════\n')
         
         if 'cngf01-picture-upload' in url:
             if flow.response.status_code == 200:
-                print('[结果] ═══════════════════════════════════════')
-                print('[结果] ✓✓✓ 上传成功! ✓✓✓')
-                print('[结果] ═══════════════════════════════════════\n')
+                sys.stdout.write('[结果] ═══════════════════════════════════════\n')
+                sys.stdout.write('[结果] ✓✓✓ 上传成功! ✓✓✓\n')
+                sys.stdout.write('[结果] ═══════════════════════════════════════\n\n')
             else:
-                print(f'[结果] ✗ 上传失败: {flow.response.status_code}')
+                sys.stdout.write(f'[结果] ✗ 上传失败: {flow.response.status_code}\n')
 
 
 class UdpLogFilter(logging.Filter):
@@ -695,48 +695,48 @@ class ConnectionLogger:
         addr = str(client.peername) if hasattr(client, 'peername') else str(client)
         if 'udp' in addr.lower():
             return
-        print(f'[连接] 客户端连接: {client.peername}')
+        sys.stdout.write(f'[连接] 客户端连接: {client.peername}\n')
     
     def client_disconnected(self, client):
         addr = str(client.peername) if hasattr(client, 'peername') else str(client)
         if 'udp' in addr.lower():
             return
-        print(f'[连接] 客户端断开: {client.peername}')
+        sys.stdout.write(f'[连接] 客户端断开: {client.peername}\n')
     
     def server_connect(self, data):
         if hasattr(data, 'server') and hasattr(data.server, 'transport_protocol'):
             if data.server.transport_protocol == 'udp':
                 return
-        print(f'[连接] 连接服务器: {data.server.address}')
+        sys.stdout.write(f'[连接] 连接服务器: {data.server.address}\n')
     
     def server_connected(self, data):
         if hasattr(data, 'server') and hasattr(data.server, 'transport_protocol'):
             if data.server.transport_protocol == 'udp':
                 return
-        print(f'[连接] 服务器已连接: {data.server.address}')
+        sys.stdout.write(f'[连接] 服务器已连接: {data.server.address}\n')
     
     def server_disconnected(self, data):
         if hasattr(data, 'server') and hasattr(data.server, 'transport_protocol'):
             if data.server.transport_protocol == 'udp':
                 return
-        print(f'[连接] 服务器断开: {data.server.address}')
+        sys.stdout.write(f'[连接] 服务器断开: {data.server.address}\n')
 
 
 class TlsLogger:
     def tls_clienthello(self, data):
-        print(f'[TLS] ClientHello: {data.context.server.address}')
+        sys.stdout.write(f'[TLS] ClientHello: {data.context.server.address}\n')
     
     def tls_established_client(self, data):
-        print(f'[TLS] 客户端TLS建立: {data.context.server.address}')
+        sys.stdout.write(f'[TLS] 客户端TLS建立: {data.context.server.address}\n')
     
     def tls_established_server(self, data):
-        print(f'[TLS] 服务器TLS建立: {data.context.server.address}')
+        sys.stdout.write(f'[TLS] 服务器TLS建立: {data.context.server.address}\n')
     
     def tls_failed_client(self, data):
-        print(f'[TLS错误] 客户端TLS失败: {data.context.server.address} - {data.context.error}')
+        sys.stdout.write(f'[TLS错误] 客户端TLS失败: {data.context.server.address} - {data.context.error}\n')
     
     def tls_failed_server(self, data):
-        print(f'[TLS错误] 服务器TLS失败: {data.context.server.address} - {data.context.error}')
+        sys.stdout.write(f'[TLS错误] 服务器TLS失败: {data.context.server.address} - {data.context.error}\n')
 
 
 def run_proxy(source_image, target_process):
@@ -747,26 +747,26 @@ def run_proxy(source_image, target_process):
     
     pid = get_process_pid(target_process)
     if pid:
-        print(f'[进程] 找到 {target_process} (PID: {pid})')
+        sys.stdout.write(f'[进程] 找到 {target_process} (PID: {pid})\n')
     else:
-        print(f'[进程] 未找到运行中的 {target_process}，将监听进程名')
+        sys.stdout.write(f'[进程] 未找到运行中的 {target_process}，将监听进程名\n')
     
-    print('\n' + '='*60)
-    print('  原神头像替换代理程序')
-    print('='*60)
-    print(f'  源图片: {source_image}')
-    print(f'  目标进程: {target_process}')
+    sys.stdout.write('\n' + '='*60 + '\n')
+    sys.stdout.write('  原神头像替换代理程序\n')
+    sys.stdout.write('='*60 + '\n')
+    sys.stdout.write(f'  源图片: {source_image}\n')
+    sys.stdout.write(f'  目标进程: {target_process}\n')
     if pid:
-        print(f'  进程PID: {pid}')
-    print('='*60)
-    print()
-    print('[模式] 使用 mitmproxy 本地捕获模式')
-    print('[提示] 正在监听请求，请进行头像上传操作')
-    print('[提示] 按 Ctrl+C 退出程序')
-    print()
+        sys.stdout.write(f'  进程PID: {pid}\n')
+    sys.stdout.write('='*60 + '\n')
+    sys.stdout.write('\n')
+    sys.stdout.write('[模式] 使用 mitmproxy 本地捕获模式\n')
+    sys.stdout.write('[提示] 正在监听请求，请进行头像上传操作\n')
+    sys.stdout.write('[提示] 按 Ctrl+C 退出程序\n')
+    sys.stdout.write('\n')
     
     mode_spec = f'local:{process_name}'
-    print(f'[配置] 代理模式: {mode_spec}')
+    sys.stdout.write(f'[配置] 代理模式: {mode_spec}\n')
     
     opts = options.Options(
         mode=[mode_spec],
@@ -798,7 +798,7 @@ def run_proxy(source_image, target_process):
         for handler in logging.root.handlers[:]:
             handler.addFilter(UdpLogFilter())
         
-        print('[代理] 代理服务已启动')
+        sys.stdout.write('[代理] 代理服务已启动\n')
         try:
             await master.run()
         except KeyboardInterrupt:
@@ -813,17 +813,18 @@ def run_proxy(source_image, target_process):
     except SystemExit:
         proxy_env.cleanup()
     except Exception as e:
-        print(f'[错误] 代理运行异常: {e}')
+        sys.stdout.write(f'[错误] 代理运行异常: {e}\n')
         proxy_env.cleanup()
     finally:
         proxy_env.cleanup()
 
 
 def check_dependencies():
+    import sys
     missing = []
     try:
         import mitmproxy
-        print(f'[依赖] mitmproxy 版本: {mitmproxy.__version__ if hasattr(mitmproxy, "__version__") else "已安装"}')
+        sys.stdout.write(f'[依赖] mitmproxy 版本: {mitmproxy.__version__ if hasattr(mitmproxy, "__version__") else "已安装"}\n')
     except ImportError:
         missing.append('mitmproxy>=10.2.0')
     try:
@@ -837,40 +838,40 @@ def check_dependencies():
     
     try:
         import mitmproxy_rs
-        print('[依赖] mitmproxy_rs 已安装')
+        sys.stdout.write('[依赖] mitmproxy_rs 已安装\n')
     except ImportError:
-        print('[警告] mitmproxy_rs 未安装，本地捕获可能不可用')
+        sys.stdout.write('[警告] mitmproxy_rs 未安装，本地捕获可能不可用\n')
     
     try:
         import mitmproxy_windows
-        print('[依赖] mitmproxy_windows 已安装')
+        sys.stdout.write('[依赖] mitmproxy_windows 已安装\n')
     except ImportError:
-        print('[警告] mitmproxy_windows 未安装，Windows本地捕获可能不可用')
+        sys.stdout.write('[警告] mitmproxy_windows 未安装，Windows本地捕获可能不可用\n')
     
     if missing:
-        print('[错误] 缺少依赖:')
+        sys.stdout.write('[错误] 缺少依赖:\n')
         for dep in missing:
-            print(f'  - {dep}')
-        print(f'\n请运行: pip install {" ".join(missing)}')
+            sys.stdout.write(f'  - {dep}\n')
+        sys.stdout.write(f'\n请运行: pip install {" ".join(missing)}\n')
         return False
     return True
 
 
 def main():
-    print('\n' + '='*60)
-    print('  原神头像替换代理程序')
-    print('='*60 + '\n')
+    sys.stdout.write('\n' + '='*60 + '\n')
+    sys.stdout.write('  原神头像替换代理程序\n')
+    sys.stdout.write('='*60 + '\n\n')
     
     if not is_admin():
-        print('[权限] 需要管理员权限，正在请求提升...')
+        sys.stdout.write('[权限] 需要管理员权限，正在请求提升...\n')
         if run_as_admin():
             sys.exit(0)
         else:
-            print('[错误] 无法获取管理员权限')
+            sys.stdout.write('[错误] 无法获取管理员权限\n')
             input('\n按回车键退出...')
             sys.exit(1)
     
-    print('[权限] 已获取管理员权限')
+    sys.stdout.write('[权限] 已获取管理员权限\n')
     
     proxy_env = ProxyEnvironment.get_instance()
     proxy_env.initialize()
@@ -879,7 +880,7 @@ def main():
         input('\n按回车键退出...')
         sys.exit(1)
     
-    print('[依赖] 所有依赖已安装')
+    sys.stdout.write('[依赖] 所有依赖已安装\n')
     
     if not install_cert_auto():
         print('[错误] 证书安装失败，无法继续')
