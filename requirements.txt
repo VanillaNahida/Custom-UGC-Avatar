@@ -4,4 +4,3 @@ mitmproxy>=10.2.0
 psutil>=5.9.0
 mitmproxy-rs>=0.1.0
 mitmproxy-windows>=0.1.0
-reqable>=0.1.0

@@ -13,6 +13,9 @@ build/
 .installed.cfg
 *.egg
 MANIFEST
+*.build/
+*.dist/
+*.onefile-build/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template

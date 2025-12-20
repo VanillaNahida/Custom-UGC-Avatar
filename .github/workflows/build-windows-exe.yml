@@ -120,42 +120,26 @@ jobs:
         Write-Host "Project version: $version"
         Write-Host "File version: $nuitka_version"
         
-        # 准备 Nuitka 参数
-        # 注意：--onefile 和 --standalone 是互斥的，这里只使用 --onefile
-        $nuitkaArgs = @(
-            "--onefile",
-            "--remove-output",
-            "--assume-yes-for-downloads",
-            "--output-dir=dist",
-            "--windows-console-mode=disable",
-            "--windows-icon-from-ico=icon.ico",
-            "--copyright=VanillaNahida",
-            "--company-name=VanillaNahida",
-            "--lto=yes",
-            "--enable-plugin=pyqt5",
-            "--onefile-tempdir-spec={TEMP}\avatar_$version",
-            "--include-data-files=LICENSE=LICENSE",
-            "--include-data-files=README.md=README.md",
-            "--file-version=$nuitka_version",
-            "--product-version=$nuitka_version",
-            "--product-name=Custom-UGC-Avatar",
-            "--file-description=Custom UGC Avatar",
-            ".\avatar_gui.py"
-        )
+        # 直接使用简化的Nuitka命令
+        $nuitkaCommand = "python -m nuitka --onefile --windows-console-mode=disable --windows-icon-from-ico=icon.ico --enable-plugin=pyqt5 " +
+                         "--remove-output --assume-yes-for-downloads --output-dir=dist " +
+                         "--copyright=VanillaNahida --company-name=VanillaNahida --lto=yes " +
+                         "--onefile-tempdir-spec={TEMP}\avatar_$version " +
+                         "--include-data-files=LICENSE=LICENSE --include-data-files=README.md=README.md " +
+                         "--file-version=$nuitka_version --product-version=$nuitka_version " +
+                         "--product-name=Custom-UGC-Avatar --file-description=Custom UGC Avatar " +
+                         ".\avatar_gui.py"
         
         # 显示完整命令
         Write-Host "Nuitka command:"
-        Write-Host "nuitka $($nuitkaArgs -join ' ')"
+        Write-Host $nuitkaCommand
         
-        # 执行构建 - 直接执行命令以确保正确捕获退出代码
+        # 执行构建
         Write-Host "Starting Nuitka build..."
         
-        # 执行Nuitka命令，并将输出保存到变量
-        $buildOutput = & nuitka @nuitkaArgs 2>&1
+        # 执行Nuitka命令
+        Invoke-Expression $nuitkaCommand
         $exitCode = $LASTEXITCODE
-        
-        # 输出构建日志
-        Write-Host $buildOutput
         
         # 检查构建是否成功
         if ($exitCode -ne 0) {
