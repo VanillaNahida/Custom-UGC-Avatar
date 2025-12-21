@@ -113,5 +113,27 @@ Thumbs.db
 # macOS
 .DS_Store
 
-# 废稿
-avatar_editor/
+# 构建输出
+release/
+
+# Electron
+node_modules/
+dist/
+build/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Electron Builder
+/dist_electron/
+*.dmg
+*.zip
+*.exe
+
+# Environment files
+.env
+.env.local
+.env.*.local
