@@ -1,57 +1,49 @@
-import { ipcMain, dialog, app, BrowserWindow, Menu } from "electron";
-import { fileURLToPath } from "node:url";
-import path from "node:path";
-import fs from "node:fs";
-const __dirname$1 = path.dirname(fileURLToPath(import.meta.url));
-let mainWindow;
-function createWindow() {
-  mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+import { ipcMain as g, dialog as p, app as t, BrowserWindow as b, Menu as s, shell as c } from "electron";
+import { fileURLToPath as h } from "node:url";
+import o from "node:path";
+import w from "node:fs";
+const i = o.dirname(h(import.meta.url));
+let e;
+function m() {
+  e = new b({
+    width: 1108,
+    height: 900,
+    title: "千星头像编辑器",
+    // 设置窗口标题
     webPreferences: {
-      preload: path.join(__dirname$1, "preload.js"),
-      contextIsolation: true,
-      nodeIntegration: false
+      preload: o.join(i, "preload.js"),
+      contextIsolation: !0,
+      nodeIntegration: !1
     }
-  });
-  if (process.env.VITE_DEV_SERVER_URL) {
-    mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
-    mainWindow.webContents.openDevTools();
-  } else {
-    mainWindow.loadFile(path.join(__dirname$1, "../dist/index.html"));
-  }
+  }), process.env.VITE_DEV_SERVER_URL ? (e.loadURL(process.env.VITE_DEV_SERVER_URL), e.webContents.openDevTools()) : e.loadFile(o.join(i, "../dist/index.html"));
 }
-ipcMain.handle("save-image", async (event, dataUrl, defaultFileName) => {
+g.handle("save-image", async (n, a, r) => {
   try {
-    const { filePath, canceled } = await dialog.showSaveDialog(mainWindow, {
+    const { filePath: l, canceled: u } = await p.showSaveDialog(e, {
       title: "保存图片",
-      defaultPath: defaultFileName || "cropped_image.png",
+      defaultPath: r || "cropped_image.png",
       filters: [
         { name: "PNG 图片", extensions: ["png"] },
         { name: "所有文件", extensions: ["*"] }
       ]
     });
-    if (canceled || !filePath) {
-      return { success: false, message: "保存已取消" };
-    }
-    const base64Data = dataUrl.replace(/^data:image\/png;base64,/, "");
-    const buffer = Buffer.from(base64Data, "base64");
-    fs.writeFileSync(filePath, buffer);
-    return { success: true, filePath, message: "图片保存成功" };
-  } catch (error) {
-    console.error("保存图片失败:", error);
-    return { success: false, message: `保存失败: ${error.message}` };
+    if (u || !l)
+      return { success: !1, message: "保存已取消" };
+    const f = a.replace(/^data:image\/png;base64,/, ""), C = Buffer.from(f, "base64");
+    return w.writeFileSync(l, C), { success: !0, filePath: l, message: "图片保存成功" };
+  } catch (l) {
+    return console.error("保存图片失败:", l), { success: !1, message: `保存失败: ${l.message}` };
   }
 });
-const createMenu = () => {
-  const template = [
+const d = () => {
+  const n = [
     {
       label: "文件",
       submenu: [
         {
           label: "退出",
           accelerator: "CmdOrCtrl+Q",
-          click: () => app.quit()
+          click: () => t.quit()
         }
       ]
     },
@@ -106,12 +98,12 @@ const createMenu = () => {
         {
           label: "重新加载",
           accelerator: "CmdOrCtrl+R",
-          click: () => mainWindow?.reload()
+          click: () => e?.reload()
         },
         {
-          label: "切换开发者工具",
-          accelerator: process.platform === "darwin" ? "Alt+Command+I" : "Ctrl+Shift+I",
-          click: () => mainWindow?.webContents.toggleDevTools()
+          label: "打开开发者工具",
+          accelerator: "Ctrl+Shift+I",
+          click: () => e?.webContents.toggleDevTools()
         },
         {
           type: "separator"
@@ -143,30 +135,37 @@ const createMenu = () => {
         {
           label: "关于",
           click: () => {
-            dialog.showMessageBox(mainWindow, {
+            p.showMessageBox(e, {
               title: "关于 Avatar Editor",
-              message: "Avatar Editor v0.0.0",
-              detail: "一个简单的头像编辑工具",
-              type: "info"
+              message: "Avatar Editor v1.0.0",
+              detail: `一个简单的千星头像编辑工具，使用Electron框架开发。
+开发者 @香草味的纳西妲喵
+主页地址：https://space.bilibili.com/1347891621`,
+              type: "info",
+              buttons: ["打开作者主页", "确定"],
+              defaultId: 1,
+              cancelId: 1
+            }).then((r) => {
+              r.response === 0 && c.openExternal("https://space.bilibili.com/1347891621");
             });
+          }
+        },
+        {
+          label: "打开作者主页",
+          click: () => {
+            c.openExternal("https://space.bilibili.com/1347891621");
           }
         }
       ]
     }
-  ];
-  const menu = Menu.buildFromTemplate(template);
-  Menu.setApplicationMenu(menu);
+  ], a = s.buildFromTemplate(n);
+  s.setApplicationMenu(a);
 };
-app.whenReady().then(() => {
-  createWindow();
-  createMenu();
-  app.on("activate", function() {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
-      createMenu();
-    }
+t.whenReady().then(() => {
+  m(), d(), t.on("activate", function() {
+    b.getAllWindows().length === 0 && (m(), d());
   });
 });
-app.on("window-all-closed", function() {
-  if (process.platform !== "darwin") app.quit();
+t.on("window-all-closed", function() {
+  process.platform !== "darwin" && t.quit();
 });

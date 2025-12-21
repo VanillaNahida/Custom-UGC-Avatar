@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, Menu } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, Menu, shell } from 'electron'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import fs from 'node:fs'
@@ -11,8 +11,9 @@ let mainWindow
 function createWindow () {
   // 创建浏览器窗口
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1108,
+    height: 900,
+    title: '千星头像编辑器', // 设置窗口标题
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -130,8 +131,8 @@ const createMenu = () => {
           click: () => mainWindow?.reload()
         },
         {
-          label: '切换开发者工具',
-          accelerator: process.platform === 'darwin' ? 'Alt+Command+I' : 'Ctrl+Shift+I',
+          label: '打开开发者工具',
+          accelerator: 'Ctrl+Shift+I',
           click: () => mainWindow?.webContents.toggleDevTools()
         },
         {
@@ -166,10 +167,24 @@ const createMenu = () => {
           click: () => {
             dialog.showMessageBox(mainWindow, {
               title: '关于 Avatar Editor',
-              message: 'Avatar Editor v0.0.0',
-              detail: '一个简单的头像编辑工具',
-              type: 'info'
+              message: 'Avatar Editor v1.0.0',
+              detail: '一个简单的千星头像编辑工具，使用Electron框架开发。\n开发者 @香草味的纳西妲喵\n主页地址：https://space.bilibili.com/1347891621',
+              type: 'info',
+              buttons: ['打开作者主页', '确定'],
+              defaultId: 1,
+              cancelId: 1
+            }).then((result) => {
+              // 如果用户点击了"打开作者主页"按钮
+              if (result.response === 0) {
+                shell.openExternal('https://space.bilibili.com/1347891621')
+              }
             })
+          }
+        },
+        {
+          label: '打开作者主页',
+          click: () => {
+            shell.openExternal('https://space.bilibili.com/1347891621')
           }
         }
       ]

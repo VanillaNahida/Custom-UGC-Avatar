@@ -244,6 +244,7 @@ onMounted(() => {
   width: 100%;
   height: 100%;
   cursor: pointer;
+  pointer-events: none; /* 添加这行，防止误触 */
 }
 
 .btn {
@@ -255,6 +256,8 @@ onMounted(() => {
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  position: relative; /* 确保按钮层级高于输入框 */
+  z-index: 1; /* 确保按钮层级高于输入框 */
 }
 
 .btn:hover {
@@ -432,3 +435,5 @@ onMounted(() => {
   }
 }
 </style>
+
+

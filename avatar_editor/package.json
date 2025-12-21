@@ -3,6 +3,8 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "description": "一个简单的千星头像编辑工具，使用Electron框架开发",
+  "author": "@香草味的纳西妲喵 <https://space.bilibili.com/1347891621>",
   "main": "dist-electron/main.js",
   "scripts": {
     "dev": "vite",
@@ -10,9 +12,7 @@
     "preview": "vite preview",
     "dev:electron": "vite",
     "build:electron": "vite build && electron-builder",
-    "build:win": "vite build && electron-builder --win",
-    "build:mac": "vite build && electron-builder --mac",
-    "build:linux": "vite build && electron-builder --linux"
+    "build:win": "vite build && electron-builder --win"
   },
   "dependencies": {
     "vue": "^3.5.24",
@@ -29,36 +29,13 @@
   "build": {
     "appId": "com.avatar.editor",
     "productName": "Avatar Editor",
-    "icon": "c:\\Users\\VanillaNahida\\Documents\\Codes\\Custom-UGC-Avata\\icon.ico",
+    "icon": "./icon.ico",
     "directories": {
       "output": "release"
     },
     "files": [
       "dist",
       "dist-electron"
-    ],
-    "win": {
-      "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64",
-            "ia32"
-          ]
-        }
-      ]
-    },
-    "mac": {
-      "target": [
-        "dmg",
-        "zip"
-      ]
-    },
-    "linux": {
-      "target": [
-        "AppImage",
-        "deb"
-      ]
-    }
+    ]
   }
 }
