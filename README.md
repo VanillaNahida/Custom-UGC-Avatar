@@ -1,4 +1,5 @@
 # Custom-UGC-Avatarr 个性化千星奇域头像 
+# ⚠警告：禁止使用本项目进行违反国家法律法规的行为。造成的一切后果由使用者承担！
 ## 感谢 @星渊清梦 提供的思路和代码
 ~~原作者仓库地址（已删库）：[https://github.com/VanillaNahida/Custom-UGC-Avatar](https://github.com/VanillaNahida/Custom-UGC-Avatar)~~
 
