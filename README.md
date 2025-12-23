@@ -1,6 +1,6 @@
 # Custom-UGC-Avatarr 个性化千星奇域头像 
 ## 感谢 @星渊清梦 提供的思路和代码
-仓库地址：[https://github.com/VanillaNahida/Custom-UGC-Avatarr](https://github.com/VanillaNahida/Custom-UGC-Avatarr)
+仓库地址：[https://github.com/VanillaNahida/Custom-UGC-Avatar](https://github.com/VanillaNahida/Custom-UGC-Avatar)
 
 注：此文件由ai生成，内容不完全可信
 
