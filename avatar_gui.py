@@ -499,6 +499,10 @@ class AvatarGUI(QMainWindow):
             self.log("正在停止代理...")
             self.proxy_thread.stop()
             self.is_proxy_running = False
+            QMessageBox.information(self, "提示", "代理已停止！请点按OK键重启程序。")
+            # 尝试重新以管理员身份运行
+            if run_as_admin():
+                sys.exit(0)
     
     def proxy_finished(self):
         self.is_proxy_running = False
