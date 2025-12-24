@@ -11,8 +11,9 @@ let mainWindow
 function createWindow () {
   // 创建浏览器窗口
   mainWindow = new BrowserWindow({
+    // 设置窗口居中
     width: 1108,
-    height: 900,
+    height: 1020,
     title: '千星头像编辑器', // 设置窗口标题
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
