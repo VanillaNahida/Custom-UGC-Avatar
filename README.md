@@ -297,7 +297,7 @@ pip install mitmproxy-windows mitmproxy-rs
 <tr>
 <td>
 
-本项目采用 [MIT](LICENSE) 许可证。
+本项目采用 [GPL-3.0 license](LICENSE) 许可证。
 
 </td>
 </tr>
