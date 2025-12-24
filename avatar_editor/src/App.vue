@@ -351,7 +351,7 @@ onMounted(() => {
   border-radius: 3px;
   background: linear-gradient(to right, #56ab2f 0%, #a8e063 100%);
   outline: none;
-  -webkit-appearance: none;
+  appearance: none;
   margin-bottom: 15px;
 }
 
