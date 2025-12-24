@@ -105,7 +105,7 @@ onMounted(() => {
 
 <template>
   <div class="avatar-editor">
-    <h1 class="title">头像编辑器</h1>
+    <h1 class="title">千星头像编辑器</h1>
     
     <div class="toolbar">
       <div class="file-input-wrapper">
@@ -212,7 +212,7 @@ onMounted(() => {
   margin: 0 auto;
   padding: 20px;
   font-family: 'Arial', sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(90deg, #56ab2f 0%, #a8e063 100%);
   min-height: 100vh;
   color: #333;
 }
@@ -349,7 +349,7 @@ onMounted(() => {
   width: 100%;
   height: 6px;
   border-radius: 3px;
-  background: linear-gradient(to right, #667eea, #764ba2);
+  background: linear-gradient(to right, #56ab2f 0%, #a8e063 100%);
   outline: none;
   -webkit-appearance: none;
   margin-bottom: 15px;
@@ -362,7 +362,7 @@ onMounted(() => {
   height: 20px;
   border-radius: 50%;
   background: white;
-  border: 3px solid #667eea;
+  border: 3px solid #56ab2f;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   transition: all 0.2s ease;
@@ -370,7 +370,7 @@ onMounted(() => {
 
 .slider::-webkit-slider-thumb:hover {
   transform: scale(1.2);
-  border-color: #764ba2;
+  border-color: #a8e063;
 }
 
 .slider::-moz-range-thumb {
@@ -378,7 +378,7 @@ onMounted(() => {
   height: 20px;
   border-radius: 50%;
   background: white;
-  border: 3px solid #667eea;
+  border: 3px solid #56ab2f;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   transition: all 0.2s ease;
@@ -386,7 +386,7 @@ onMounted(() => {
 
 .slider::-moz-range-thumb:hover {
   transform: scale(1.2);
-  border-color: #764ba2;
+  border-color: #a8e063;
 }
 
 .preview-area {
@@ -435,5 +435,7 @@ onMounted(() => {
   }
 }
 </style>
+
+
 
 

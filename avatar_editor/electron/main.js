@@ -168,15 +168,18 @@ const createMenu = () => {
             dialog.showMessageBox(mainWindow, {
               title: '关于 Avatar Editor',
               message: 'Avatar Editor v1.0.0',
-              detail: '一个简单的千星头像编辑工具，使用Electron框架开发。\n开发者 @香草味的纳西妲喵\n主页地址：https://space.bilibili.com/1347891621',
+              detail: '一个简单的千星头像编辑工具，使用Electron框架开发。\n开发者 @香草味的纳西妲喵\n主页地址：https://space.bilibili.com/1347891621\n编辑器GitHub地址：https://github.com/VanillaNahida/Custom-UGC-Avatar',
               type: 'info',
-              buttons: ['打开作者主页', '确定'],
+              buttons: ['打开作者主页', '浏览项目GitHub仓库', '确定'],
               defaultId: 1,
               cancelId: 1
             }).then((result) => {
               // 如果用户点击了"打开作者主页"按钮
               if (result.response === 0) {
                 shell.openExternal('https://space.bilibili.com/1347891621')
+              }
+              if (result.response === 1) {
+                shell.openExternal('https://github.com/VanillaNahida/Custom-UGC-Avatar')
               }
             })
           }
@@ -185,6 +188,12 @@ const createMenu = () => {
           label: '打开作者主页',
           click: () => {
             shell.openExternal('https://space.bilibili.com/1347891621')
+          }
+        },
+        {
+          label: '浏览项目GitHub仓库',
+          click: () => {
+            shell.openExternal('https://github.com/VanillaNahida/Custom-UGC-Avatar')
           }
         }
       ]

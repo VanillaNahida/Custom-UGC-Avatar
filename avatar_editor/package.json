@@ -28,8 +28,8 @@
   },
   "build": {
     "appId": "com.avatar.editor",
-    "productName": "Avatar Editor",
-    "icon": "./icon.ico",
+    "productName": "Avatar Editor 千星头像编辑器",
+    "icon": "./favicon.ico",
     "directories": {
       "output": "release"
     },
