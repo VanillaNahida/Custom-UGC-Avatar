@@ -914,6 +914,27 @@ def main():
     
     run_proxy(str(source_image), target_process)
 
+def app():
+    multiprocessing.freeze_support()
+    proxy_env = None
+    try:
+        proxy_env = ProxyEnvironment.get_instance()
+        main()
+    except KeyboardInterrupt:
+        print('\n[系统] 用户中断程序')
+        if proxy_env:
+            proxy_env.cleanup()
+    except SystemExit:
+        if proxy_env:
+            proxy_env.cleanup()
+    except Exception as e:
+        print(f'\n[严重错误] 程序异常: {e}')
+        if proxy_env:
+            proxy_env.cleanup()
+        input('\n按回车键退出...')
+    finally:
+        if proxy_env:
+            proxy_env.cleanup()
 
 if __name__ == '__main__':
     multiprocessing.freeze_support()

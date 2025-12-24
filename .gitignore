@@ -138,3 +138,4 @@ lerna-debug.log*
 .env.local
 .env.*.local
 dist-electron/
+generate_module.py
