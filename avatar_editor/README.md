@@ -112,7 +112,7 @@ npm run build:win
 
 ## 许可证
 
-MIT License
+GPL-3.0 license
 
 ## 作者
 
