@@ -172,7 +172,7 @@ graph TD
 
 ### 📦下载使用
 
-请前往[Release](https://github.com/VanillaNahida/Custom-UGC-Avatar/releases)页面下载最新版本，解压后运行即可
+请前往[Release](https://github.com/VanillaNahida/Custom-UGC-Avatar/releases)页面下载最新版本，解压后运行即可  
 使用时请**务必关闭**电脑上的**一切**代理软件和加速器，否则软件会无法成功替换头像
 
 ### 📥 安装依赖
