@@ -1,7 +1,7 @@
 # Custom-UGC-Avatarr 个性化千星奇域头像 
   > [!WARNING]
   > 由于米哈游在月之四版本修改了后端的校验方式，导致该工具在月之四版本已失效无法替换，后续也不会再提供支持，有能力的请自行fork开发。
-  > 你可以尝试使用[dx11_tex_dbg_for_mw](https://github.com/VanillaNahida/dx11_tex_dbg_for_mw)项目来更换
+  > 你可以使用[dx11_tex_dbg_for_mw](https://github.com/VanillaNahida/dx11_tex_dbg_for_mw)这个项目来更换千星奇域头像。
 # ⚠警告：禁止使用本项目进行违反国家法律法规的行为。造成的一切后果由使用者承担！
 ## 感谢 @星渊清梦 提供的思路和代码
 ~~原作者仓库地址（已删库）：[https://github.com/stardeep925/ugcAvatar](https://github.com/stardeep925/ugcAvatar)~~
