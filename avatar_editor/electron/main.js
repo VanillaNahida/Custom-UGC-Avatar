@@ -1,7 +1,6 @@
 import { app, BrowserWindow, dialog, ipcMain, Menu, shell } from 'electron'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
-import fs from 'node:fs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -182,7 +181,7 @@ const createMenu = () => {
           click: () => {
             dialog.showMessageBox(mainWindow, {
               title: '关于 Avatar Editor',
-              message: 'Avatar Editor v1.0.5',
+              message: `Avatar Editor v${app.getVersion()}`,
               detail: '一个简单的千星头像编辑工具，使用Electron框架开发。\n开发者 @香草味的纳西妲喵\n主页地址：https://space.bilibili.com/1347891621\n编辑器GitHub地址：https://github.com/VanillaNahida/Custom-UGC-Avatar',
               type: 'info',
               buttons: ['打开作者主页', '浏览项目GitHub仓库', '确定'],
