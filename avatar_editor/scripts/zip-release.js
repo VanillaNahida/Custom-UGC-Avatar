@@ -8,7 +8,7 @@ const rootDir = join(__dirname, '..')
 
 const pkg = JSON.parse(readFileSync(join(rootDir, 'package.json'), 'utf-8'))
 const version = pkg.version
-const zipName = `Avatar Editor 头像编辑器_v${version}.zip`
+const zipName = `Avatar Editor_v${version}.zip`
 
 const sourceDir = join(rootDir, 'release', 'win-unpacked')
 const destPath = join(rootDir, 'release', zipName)
