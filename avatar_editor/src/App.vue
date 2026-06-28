@@ -9,6 +9,25 @@ const cropper = ref(null)
 const isImageLoaded = ref(false)
 const fileInput = ref(null)
 
+const showHelp = ref(false)
+
+const generateImageHash = async (dataUrl) => {
+  try {
+    const binaryString = atob(dataUrl.replace(/^data:image\/\w+;base64,/, ''))
+    const bytes = new Uint8Array(binaryString.length)
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i)
+    }
+    const hashBuffer = await crypto.subtle.digest('SHA-256', bytes)
+    const hashArray = Array.from(new Uint8Array(hashBuffer))
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+    return hashHex.substring(0, 16)
+  } catch (error) {
+    console.error('计算哈希失败:', error)
+    return Date.now().toString(16)
+  }
+}
+
 // 触发文件选择
 const triggerFileInput = () => {
   if (fileInput.value) {
@@ -56,20 +75,20 @@ const updatePreview = () => {
 const saveImage = async () => {
   if (previewUrl.value) {
     try {
-      // 检查是否在Electron环境中
+      const hash = await generateImageHash(previewUrl.value)
+      const fileName = `${hash}.png`
+
       if (typeof window !== 'undefined' && window.electronAPI && typeof window.electronAPI.saveImage === 'function') {
-        // 使用Electron原生保存功能
-        const result = await window.electronAPI.saveImage(previewUrl.value, 'cropped_image.png')
+        const result = await window.electronAPI.saveImage(previewUrl.value, fileName)
         if (result.success) {
           console.log('图片保存成功:', result.filePath)
         } else {
           console.log('图片保存取消或失败:', result.message)
         }
       } else {
-        // 开发环境下的回退方案
         const link = document.createElement('a')
         link.href = previewUrl.value
-        link.download = 'cropped_image.png'
+        link.download = fileName
         link.click()
       }
     } catch (error) {
@@ -78,35 +97,74 @@ const saveImage = async () => {
   }
 }
 
-// 重置位置
-const resetPosition = () => {
-  if (cropper.value) {
-    // 重新初始化缩放
-    scale.value = 1
-  }
-}
-
-// 监听缩放变化
-const handleScaleChange = (value) => {
-  scale.value = value
-  // 通过props :scale="scale"自动更新，不需要手动调用方法
-}
-
 // 监听裁剪尺寸变化
 const handleCropSizeChange = (value) => {
   cropSize.value = value
 }
 
-onMounted(() => {
-  // 初始化时可以加载一个默认图片作为示例
+const handleDragOver = (e) => {
+  e.preventDefault()
+}
+
+const handleDrop = (e) => {
+  e.preventDefault()
+  const files = e.dataTransfer.files
+  if (files && files.length > 0) {
+    const file = files[0]
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        imageUrl.value = e.target.result
+        isImageLoaded.value = true
+        setTimeout(() => {
+          updatePreview()
+        }, 100)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+}
+
+const clearCanvas = () => {
   imageUrl.value = ''
+  previewUrl.value = ''
+  isImageLoaded.value = false
+  scale.value = 1
+}
+
+const handlePaste = async (e) => {
+  const items = e.clipboardData?.items
+  if (items) {
+    for (const item of items) {
+      if (item.type.startsWith('image/')) {
+        const file = item.getAsFile()
+        if (file) {
+          const reader = new FileReader()
+          reader.onload = (e) => {
+            imageUrl.value = e.target.result
+            isImageLoaded.value = true
+            setTimeout(() => {
+              updatePreview()
+            }, 100)
+          }
+          reader.readAsDataURL(file)
+          break
+        }
+      }
+    }
+  }
+}
+
+onMounted(() => {
+  imageUrl.value = ''
+  window.addEventListener('paste', handlePaste)
 })
 </script>
 
 <template>
   <div class="avatar-editor">
-    <h1 class="title">千星头像编辑器</h1>
-    
+    <h1 class="title">头像编辑器</h1>
+
     <div class="toolbar">
       <div class="file-input-wrapper">
         <button class="btn btn-primary" @click="triggerFileInput">选择图片</button>
@@ -119,10 +177,12 @@ onMounted(() => {
         />
       </div>
       <button class="btn btn-success" @click="saveImage">保存图片</button>
+      <button class="btn btn-danger" @click="clearCanvas">清空画布</button>
+      <button class="btn btn-help" @click="showHelp = true">帮助</button>
     </div>
     
     <div class="editor-container">
-      <div class="crop-area">
+      <div class="crop-area" @dragover="handleDragOver" @drop="handleDrop">
         <vue-cropper
           ref="cropper"
           v-if="imageUrl"
@@ -145,27 +205,12 @@ onMounted(() => {
           @realTime="updatePreview"
         />
         <div v-else class="placeholder">
-          <p>请选择图片开始编辑</p>
+          <p>点击上方按钮选择图片</p>
+          <p class="drop-hint">或直接拖拽图片到此处（支持Ctrl+V粘贴图片上传）</p>
         </div>
       </div>
       
       <div class="control-panel">
-        <div class="control-section">
-          <h3>缩放控制</h3>
-          <div class="scale-info">
-            <span>缩放比例: {{ Math.round(scale * 100) }}%</span>
-          </div>
-          <input 
-            type="range" 
-            min="0.1" 
-            max="3" 
-            step="0.01" 
-            v-model.number="scale"
-            @input="handleScaleChange(scale)"
-            class="slider"
-          />
-        </div>
-        
         <div class="control-section">
           <h3>裁剪尺寸</h3>
           <div class="size-info">
@@ -184,7 +229,6 @@ onMounted(() => {
         
         <div class="control-section">
           <h3>操作</h3>
-          <button class="btn btn-secondary" @click="resetPosition">重置位置</button>
           <button class="btn btn-secondary" @click="updatePreview">更新预览</button>
         </div>
         
@@ -203,6 +247,24 @@ onMounted(() => {
     <div v-if="isImageLoaded" class="status-bar">
       <p>图片已加载，可以开始编辑</p>
     </div>
+
+    <!-- 帮助弹窗 -->
+    <div v-if="showHelp" class="modal-overlay" @click="showHelp = false">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <h2>如何使用</h2>
+          <button class="modal-close" @click="showHelp = false">×</button>
+        </div>
+        <div class="modal-body">
+          <ul class="help-list">
+            <li>拖动裁剪框裁剪你想要的图片</li>
+            <li>裁剪框蓝色小点鼠标按住拖放可缩放裁剪框</li>
+            <li>鼠标滚轮对图片画布进行缩放</li>
+            <li>阴影部分左键按住可移动图片画布</li>
+          </ul>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -211,7 +273,7 @@ onMounted(() => {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
-  font-family: 'Arial', sans-serif;
+  font-family: 'Blueaka', 'Arial', sans-serif;
   background: linear-gradient(90deg, #56ab2f 0%, #a8e063 100%);
   min-height: 100vh;
   color: #333;
@@ -221,8 +283,10 @@ onMounted(() => {
   text-align: center;
   color: white;
   font-size: 28px;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  font-family: 'Blueaka_Bold', "Blueaka", 'Arial', sans-serif;
+  font-weight: 700;
 }
 
 .toolbar {
@@ -282,6 +346,16 @@ onMounted(() => {
   margin-bottom: 10px;
 }
 
+.btn-help {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+  color: white;
+}
+
 .editor-container {
   display: flex;
   gap: 30px;
@@ -309,12 +383,23 @@ onMounted(() => {
 
 .placeholder {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   width: 100%;
   height: 100%;
   color: #999;
   font-size: 18px;
+}
+
+.placeholder p {
+  margin: 5px 0;
+}
+
+.drop-hint {
+  font-size: 14px;
+  color: #56ab2f;
+  font-weight: 500;
 }
 
 .control-panel {
@@ -338,7 +423,7 @@ onMounted(() => {
   letter-spacing: 0.5px;
 }
 
-.scale-info, .size-info {
+.size-info {
   margin-bottom: 10px;
   font-size: 14px;
   color: #6c757d;
@@ -433,6 +518,107 @@ onMounted(() => {
   .crop-area {
     height: 400px;
   }
+}
+
+/* 弹窗样式 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  animation: modalFadeIn 0.3s ease;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #eee;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: #333;
+  font-size: 22px;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: #999;
+  transition: color 0.2s ease;
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+}
+
+.modal-close:hover {
+  color: #333;
+  background: #f5f5f5;
+}
+
+.modal-body {
+  padding: 24px;
+}
+
+.help-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.help-list li {
+  padding: 12px 0;
+  padding-left: 30px;
+  position: relative;
+  color: #555;
+  font-size: 15px;
+  line-height: 1.6;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.help-list li:last-child {
+  border-bottom: none;
+}
+
+.help-list li::before {
+  position: absolute;
+  left: 0;
+  color: #56ab2f;
+  font-weight: bold;
+  font-size: 16px;
 }
 </style>
 

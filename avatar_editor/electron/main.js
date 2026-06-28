@@ -14,12 +14,26 @@ function createWindow () {
     // 设置窗口居中
     width: 1108,
     height: 1020,
-    title: '千星头像编辑器', // 设置窗口标题
+    title: '头像编辑器', // 设置窗口标题
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false
     }
+  })
+
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    return { action: 'allow' }
+  })
+
+  mainWindow.webContents.on('did-create-window', (childWindow) => {
+    childWindow.webContents.session.on('will-download', (event, item) => {
+      item.once('done', () => {
+        if (!childWindow.isDestroyed()) {
+          childWindow.close()
+        }
+      })
+    })
   })
 
   // 加载应用的index.html
@@ -168,12 +182,12 @@ const createMenu = () => {
           click: () => {
             dialog.showMessageBox(mainWindow, {
               title: '关于 Avatar Editor',
-              message: 'Avatar Editor v1.0.0',
+              message: 'Avatar Editor v1.0.5',
               detail: '一个简单的千星头像编辑工具，使用Electron框架开发。\n开发者 @香草味的纳西妲喵\n主页地址：https://space.bilibili.com/1347891621\n编辑器GitHub地址：https://github.com/VanillaNahida/Custom-UGC-Avatar',
               type: 'info',
               buttons: ['打开作者主页', '浏览项目GitHub仓库', '确定'],
-              defaultId: 1,
-              cancelId: 1
+              defaultId: 2,
+              cancelId: 2
             }).then((result) => {
               // 如果用户点击了"打开作者主页"按钮
               if (result.response === 0) {
