@@ -1,11 +1,31 @@
 :root {
-  font-family: 'Blueaka', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --bg-primary: oklch(0.14 0.01 260);
+  --bg-secondary: oklch(0.18 0.01 260);
+  --bg-tertiary: oklch(0.22 0.01 260);
+  --bg-card: oklch(0.20 0.01 260);
+  --text-primary: oklch(0.92 0.01 260);
+  --text-secondary: oklch(0.68 0.02 260);
+  --text-muted: oklch(0.50 0.02 260);
+  --accent: oklch(0.62 0.18 145);
+  --accent-hover: oklch(0.68 0.18 145);
+  --accent-subtle: oklch(0.25 0.04 145);
+  --danger: oklch(0.55 0.22 25);
+  --danger-hover: oklch(0.62 0.22 25);
+  --border: oklch(0.28 0.02 260);
+  --border-focus: oklch(0.62 0.18 145);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+
+  font-family: 'Blueaka', 'DM Sans', 'Segoe UI', system-ui, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
-  color: #213547;
-  background-color: #f5f7fa;
-
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -22,16 +42,15 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: linear-gradient(90deg, #56ab2f 0%, #a8e063 100%);
+  background: var(--bg-primary);
 }
 
 #app {
   width: 100%;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 0;
 }
 
-/* 重置默认样式 */
 h1, h2, h3, h4, h5, h6 {
   margin: 0;
   font-weight: 600;
@@ -50,29 +69,35 @@ input[type="range"] {
   outline: none;
 }
 
-/* 滚动条样式 */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: var(--bg-secondary);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #888;
+  background: oklch(0.35 0.02 260);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: oklch(0.45 0.02 260);
 }
 
-/* 图片选择器隐藏 */
 input[type="file"] {
   position: absolute;
   opacity: 0;
   cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

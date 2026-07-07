@@ -1,8 +1,12 @@
 import { app, BrowserWindow, dialog, ipcMain, Menu, shell } from 'electron'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
+import fs from 'node:fs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+// 配置文件路径（持久化插件目录配置）
+const CONFIG_FILE = path.join(app.getPath('userData'), 'plugin-config.json')
 
 // 保持窗口对象的全局引用，避免被垃圾回收
 let mainWindow
@@ -15,7 +19,7 @@ function createWindow () {
     height: 1020,
     title: '头像编辑器', // 设置窗口标题
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true,
       nodeIntegration: false
     }
@@ -75,6 +79,56 @@ ipcMain.handle('save-image', async (event, dataUrl, defaultFileName) => {
   } catch (error) {
     console.error('保存图片失败:', error)
     return { success: false, message: `保存失败: ${error.message}` }
+  }
+})
+
+// 处理保存图片到插件目录（无对话框，直接写入）
+ipcMain.handle('save-to-plugin-path', async (event, dataUrl, filePath) => {
+  try {
+    // 确保目标目录存在
+    const dir = path.dirname(filePath)
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true })
+    }
+
+    // 将base64数据转换为二进制
+    const base64Data = dataUrl.replace(/^data:image\/png;base64,/, '')
+    const buffer = Buffer.from(base64Data, 'base64')
+
+    // 写入文件
+    fs.writeFileSync(filePath, buffer)
+
+    return { success: true, filePath, message: '图片已输出到插件目录' }
+  } catch (error) {
+    console.error('输出到插件目录失败:', error)
+    return { success: false, message: `输出失败: ${error.message}` }
+  }
+})
+
+// 获取已保存的插件路径配置
+ipcMain.handle('get-plugin-path', async () => {
+  try {
+    if (fs.existsSync(CONFIG_FILE)) {
+      const data = fs.readFileSync(CONFIG_FILE, 'utf-8')
+      const config = JSON.parse(data)
+      return config.pluginPath || ''
+    }
+    return ''
+  } catch (error) {
+    console.error('读取配置失败:', error)
+    return ''
+  }
+})
+
+// 保存插件路径配置
+ipcMain.handle('save-plugin-path', async (event, pluginPath) => {
+  try {
+    const config = { pluginPath }
+    fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2), 'utf-8')
+    return { success: true }
+  } catch (error) {
+    console.error('保存配置失败:', error)
+    return { success: false, message: error.message }
   }
 })
 
