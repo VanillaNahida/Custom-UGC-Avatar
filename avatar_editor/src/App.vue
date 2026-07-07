@@ -451,7 +451,7 @@ onMounted(async () => {
 
 .btn-primary {
   background: var(--accent);
-  color: var(--bg-primary);
+  color: #fff;
 }
 
 .btn-primary:hover {
@@ -460,7 +460,7 @@ onMounted(async () => {
 
 .btn-success {
   background: var(--accent);
-  color: var(--bg-primary);
+  color: #fff;
 }
 
 .btn-success:hover {
@@ -476,7 +476,7 @@ onMounted(async () => {
 }
 
 .btn-secondary:hover {
-  background: oklch(0.28 0.01 260);
+  background: oklch(0.86 0.008 95);
 }
 
 .btn-help {
@@ -485,13 +485,13 @@ onMounted(async () => {
 }
 
 .btn-help:hover {
-  background: oklch(0.28 0.01 260);
+  background: oklch(0.86 0.008 95);
   color: var(--text-primary);
 }
 
 .btn-danger {
   background: var(--danger);
-  color: var(--text-primary);
+  color: #fff;
 }
 
 .btn-danger:hover {
@@ -509,12 +509,12 @@ onMounted(async () => {
 }
 
 .btn-save:hover {
-  background: oklch(0.28 0.01 260);
+  background: oklch(0.86 0.008 95);
 }
 
 .btn-export {
   background: var(--accent);
-  color: var(--bg-primary);
+  color: #fff;
   padding: 10px 20px;
   font-size: 14px;
 }
@@ -739,7 +739,7 @@ onMounted(async () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.35);
   backdrop-filter: blur(4px);
   display: flex;
   justify-content: center;

@@ -69,26 +69,26 @@ const { toasts, remove } = useToast()
   cursor: pointer;
   pointer-events: auto;
   border: 1px solid;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
   backdrop-filter: blur(8px);
 }
 
 .toast--success {
-  background: oklch(0.18 0.03 145);
-  border-color: oklch(0.35 0.08 145);
-  color: oklch(0.85 0.06 145);
+  background: oklch(0.94 0.04 145);
+  border-color: oklch(0.75 0.12 145);
+  color: oklch(0.35 0.10 145);
 }
 
 .toast--error {
-  background: oklch(0.18 0.03 25);
-  border-color: oklch(0.35 0.08 25);
-  color: oklch(0.85 0.06 25);
+  background: oklch(0.94 0.04 25);
+  border-color: oklch(0.75 0.12 25);
+  color: oklch(0.35 0.12 25);
 }
 
 .toast--warning {
-  background: oklch(0.18 0.03 85);
-  border-color: oklch(0.35 0.08 85);
-  color: oklch(0.85 0.06 85);
+  background: oklch(0.94 0.04 85);
+  border-color: oklch(0.75 0.12 85);
+  color: oklch(0.35 0.10 85);
 }
 
 .toast--info {
@@ -107,19 +107,19 @@ const { toasts, remove } = useToast()
 }
 
 .toast--success .toast-icon {
-  color: oklch(0.85 0.06 145);
+  color: oklch(0.50 0.14 145);
 }
 
 .toast--error .toast-icon {
-  color: oklch(0.85 0.06 25);
+  color: oklch(0.50 0.16 25);
 }
 
 .toast--warning .toast-icon {
-  color: oklch(0.85 0.06 85);
+  color: oklch(0.50 0.14 85);
 }
 
 .toast--info .toast-icon {
-  color: var(--text-primary);
+  color: var(--text-muted);
 }
 
 .toast-message {
